@@ -201,6 +201,8 @@ For the stage 'Deploy to Tomcat' generate the pipeline syntax;
 Open Pipeline Syntax in new tab ----> Sample step: deploy: Deploy war/ear to a container, WAR/EAR Files: **/*.war, Context Path: hotstarapp, Add container: Select 'Tomcat 9.x Remote', Credentials: Select the tomcat creds from dropdown, Tomcat URL: Paste upto 8080/ ----> Generate pipeline script ----> Copy and paste in 'Deploy to Tomcat' stage
 
 Paste the below script;
+
+```jenkinsfile
 pipeline {
     agent any
     stages {
@@ -231,6 +233,8 @@ pipeline {
         }
     }
 }
+```
+
 
 ----> Apply and Build the job ----> Job will be successful
 
@@ -248,6 +252,8 @@ Lets configure access keys in jenkins ----> Manage jenkins ----> System Configur
 Open the job created ----> Open pipeline syntax (here we will generate script to push artifacts to S3) ----> Sample step: S3upload: Publish artifacts to S3 bucket, S3 profile: s3creds, Files to upload: **/*.war, Destination Bucket: <GiveTheBucketName>/ , Storage class: Standard, Bucket region: <SelectTheRegionofBucket>, 'check' Server side encryption ----> Generate pipeline script ----> Copy and paste in 'Artifacts to S3' stage
 
 Paste the below script;
+
+```jenkinsfile
 pipeline {
     agent any
     stages {
@@ -283,6 +289,9 @@ pipeline {
         }
     }
 }
+```
+
+
 
 ----> Apply and Build the job ----> Job will be successful ---> Goto S3 and check for artifact
 
@@ -299,6 +308,8 @@ Jenkins ----> Manage Jenkins ----> System Configuration ----> Tools ----> Scroll
 
 Lets integrate SonarQube in the pipeline ----> Open the job ----> Paste the below script (In the script, i have added sonarqube-scanning' stage before the artifacts stage)
 
+
+```jenkinsfile
 pipeline {
     agent any
     stages {
@@ -342,6 +353,8 @@ pipeline {
     }
 }
 
+```
+
 
 ----> Apply and Build the job ----> Job will be successful ---> Goto SonarQube dashboard and check it
 
@@ -355,6 +368,8 @@ Jenkins ----> Manage Jenkins ----> Security ----> Credentials ----> Click on 'gl
 Lets integrate Nexus in the pipeline ----> Open the job ----> Open pipeline syntax in new tab ----> Sample step: nexusArtifactUploader: Nexus Artifact Uploader, Nexus Version: Nexus3, Protocol: HTTP, Nexus URL: <Paste The Nexus URL> [Ex: IP:8081], Credentials: Select 'nexus' from dropdown, GroupId: in.kastro (this is in pom.xml file), Version: 8.3.3-Snapshot (this is in pom.xml file), Repository: hotstar (This name should be same as created in the Nexus console), Artifacts: Add: Artifact ID: myapp (this is in pom.xml file), Type: .war, Classifier: <Leave Blank>, File: target/myapp.war (Note: here instead of path, we can also mention **/*.war) ----> Generate script ----> Copy the script and paste in the below pipeline stage of 'Nexus'
 Paste the below script (In the script, i have added 'Nexus' stage after the Tomcat stage)
 
+
+```jenkinsfile
 pipeline {
     agent any
     stages {
@@ -403,12 +418,15 @@ pipeline {
     }
 }
 
+```
+
 ----> Apply and Build the job ----> Job will be successful ---> Goto Nexus dashboard and click on 'hotstar' ----> Copy the URL you see and paste in new tab ----> 	Click on 'browse' ----> You will see the war file got stored as artifact
 Goto Tomcat and check for application
 
 
 final jenkins script
 
+```jenkinsfile
 pipeline {
     agent any
     stages {
@@ -455,3 +473,4 @@ pipeline {
         }
     }
 }
+```
