@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git 'https://github.com/tusuii/Hotstar-App.git'
+            }
+        }
+        stage('Compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        } 
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('SonarQube Scanning') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
+                }
+            }
+        }
+        stage('Arifacts') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Deploy to Tomcat') {
+            steps {
+               deploy adapters: [tomcat9(credentialsId: 'tomcat-creds', path: '', url: 'http://13.232.174.196:8080/')], contextPath: 'hotstarapp', war: '**/*.war'
+            }
+        }
+        stage('Nexus') {
+            steps {
+               nexusArtifactUploader artifacts: [[artifactId: 'myapp', classifier: '', file: 'target/myapp.war', type: '.war']], credentialsId: 'nexus', groupId: 'in.subodh', nexusUrl: '13.235.0.204:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'hotstar', version: '1.0.0-SNAPSHOT'
+            }
+        }
+        stage('Artifact to S3') {
+            steps {
+               s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'test-test-hotstar-app', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: false, selectedRegion: 'ap-south-1', showDirectlyInBrowser: false, sourceFile: '**/*.war', storageClass: 'STANDARD_IA', uploadFromSlave: false, useServerSideEncryption: true]], pluginFailureResultConstraint: 'FAILURE', profileName: 's3creds', userMetadata: []            }
+        }
+    }
+}
